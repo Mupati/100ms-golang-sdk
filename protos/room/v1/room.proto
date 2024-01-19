@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package room.v1;
+
+option go_package = "github.com/Mupati/100ms-golang-server-sdk/gen/room/v1;roomv1";
+
+
+// UploadOptions defines options for room upload.
+message UploadOptions {
+  string region = 1; // Region for upload.
+}
+
+// UploadCredentials contains credentials for room upload.
+message UploadCredentials {
+  string key = 1;    // Access key.
+  string secret = 2; // Secret key.
+}
+
+// UploadInfo provides information for room upload.
+message UploadInfo {
+  string type = 1;               // Type of upload.
+  string location = 2;           // Location of upload.
+  string prefix = 3;             // Prefix for upload.
+  UploadOptions options = 4;     // Upload options.
+  UploadCredentials credentials = 5; // Upload credentials.
+}
+
+// RecordingInfo contains information about room recording.
+message RecordingInfo {
+  bool enabled = 1;          // Indicates if recording is enabled.
+  repeated string polls = 2; // List of polls.
+  UploadInfo upload_info = 3; // Upload information.
+}
+
+// HMSRoom represents a room in the Hotel Management System.
+message HMSRoom {
+  string name = 1;                    // Name of the room.
+  string description = 2;             // Description of the room.
+  string template_id = 3;             // Template ID of the room.
+  RecordingInfo recording_info = 4;   // Recording information.
+  string region = 5;                   // Region of the room.
+  bool large_room = 6;                // Indicates if it's a large room.
+  int32 size = 7;                     // Size of the room.
+  int32 max_duration_seconds = 8;    // Maximum duration in seconds.
+  repeated string polls = 9;          // List of polls associated with the room.
+}
+
+// HMSRoomQueryParam represents parameters for querying rooms.
+message HMSRoomQueryParam {
+  string name = 1;    // Name of the room.
+  bool enabled = 2;   // Indicates if the room is enabled.
+  string before = 3;  // Filter for rooms created before a certain date.
+  string after = 4;   // Filter for rooms created after a certain date.
+}
+
+// RoomService contains RPC methods for room-related operations.
+service RoomService {
+  rpc GetRoom (GetRoomRequest) returns (GetRoomResponse);                   // Get details of a given room.
+  rpc ListRooms (ListRoomsRequest) returns (ListRoomsResponse);               // Get a list of all rooms.
+  rpc CreateRoom (CreateRoomRequest) returns (CreateRoomResponse);             // Create a room.
+  rpc UpdateRoom (UpdateRoomRequest) returns (UpdateRoomResponse);             // Update a room.
+  rpc EnableRoom (EnableRoomRequest) returns (EnableRoomResponse);             // Enable a room.
+  rpc DisableRoom (DisableRoomRequest) returns (DisableRoomResponse);           // Disable a room.
+}
+
+// GetRoomRequest represents a request for room details.
+message GetRoomRequest {
+  string room_id = 1; // ID of the room to retrieve.
+}
+
+// ListRoomsRequest represents a request for a list of rooms with optional filters.
+message ListRoomsRequest {
+  string name = 1;    // Name filter.
+  bool enabled = 2;   // Enabled filter.
+  string before = 3;  // Filter for rooms created before a certain date.
+  string after = 4;   // Filter for rooms created after a certain date.
+}
+
+// CreateRoomRequest represents a request to create a room.
+message CreateRoomRequest {
+  HMSRoom room = 1; // Room to be created.
+}
+
+// UpdateRoomRequest represents a request to update a room.
+message UpdateRoomRequest {
+  string room_id = 1; // ID of the room to update.
+  HMSRoom room = 2;  // Updated room information.
+}
+
+// EnableRoomRequest represents a request to enable a room.
+message EnableRoomRequest {
+  string room_id = 1; // ID of the room to enable.
+}
+
+// DisableRoomRequest represents a request to disable a room.
+message DisableRoomRequest {
+  string room_id = 1; // ID of the room to disable.
+}
+
+
+message GetRoomResponse {
+ HMSRoom room = 1;
+}
+
+message UpdateRoomResponse {
+  HMSRoom room = 1;
+ }
+
+
+message HMSRoomList {
+  int32 limit = 1;
+  repeated HMSRoom data = 2;
+  string last = 3;
+}
+
+message ListRoomsResponse {
+  HMSRoomList rooms = 1;
+}
+
+
+message CreateRoomResponse {
+  HMSRoom room = 1;
+ }
+
+
+
+message DisableRoomResponse  {
+  map<string, string> disable_room_response = 1;
+}
+
+message EnableRoomResponse  {
+  map<string, string> enable_room_response = 1;
+}
