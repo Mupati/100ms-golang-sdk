@@ -64,6 +64,14 @@ func performHTTPCall(url, method string, payload *bytes.Buffer) (string, error) 
 
 }
 
+func hmsRoomToJSONPayload(room *roomv1.HMSRoom) (*bytes.Buffer, error) {
+	jsonBytes, err := json.Marshal(&room)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(jsonBytes), nil
+}
+
 func (s *RoomServer) GetRoom(ctx context.Context, req *connect.Request[roomv1.GetRoomRequest]) (*connect.Response[roomv1.GetRoomResponse], error) {
 	resp, err := performHTTPCall(os.Getenv("BASE_URL")+"rooms/"+req.Msg.RoomId, "GET", nil)
 	if err != nil {
@@ -102,11 +110,50 @@ func (s *RoomServer) ListRooms(ctx context.Context, req *connect.Request[roomv1.
 }
 
 func (s *RoomServer) CreateRoom(ctx context.Context, req *connect.Request[roomv1.CreateRoomRequest]) (*connect.Response[roomv1.CreateRoomResponse], error) {
-	return nil, nil
+
+	payload, err := hmsRoomToJSONPayload(req.Msg.Room)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := performHTTPCall(os.Getenv("BASE_URL")+"rooms", "POST", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	var hmsRoom roomv1.HMSRoom
+	err = json.Unmarshal([]byte(resp), &hmsRoom)
+	if err != nil {
+		return nil, err
+	}
+
+	res := connect.NewResponse(
+		&roomv1.CreateRoomResponse{
+			Room: &hmsRoom,
+		},
+	)
+	return res, nil
 }
 
 func (s *RoomServer) UpdateRoom(ctx context.Context, req *connect.Request[roomv1.UpdateRoomRequest]) (*connect.Response[roomv1.UpdateRoomResponse], error) {
-	return nil, nil
+	payload, err := hmsRoomToJSONPayload(req.Msg.Room)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := performHTTPCall(os.Getenv("BASE_URL")+"rooms/"+req.Msg.RoomId, "POST", payload)
+	if err != nil {
+		return nil, err
+	}
+	var hmsRoom roomv1.HMSRoom
+	err = json.Unmarshal([]byte(resp), &hmsRoom)
+	if err != nil {
+		return nil, err
+	}
+	res := connect.NewResponse(
+		&roomv1.UpdateRoomResponse{
+			Room: &hmsRoom,
+		},
+	)
+	return res, nil
 }
 
 func (s *RoomServer) EnableRoom(ctx context.Context, req *connect.Request[roomv1.EnableRoomRequest]) (*connect.Response[roomv1.EnableRoomResponse], error) {

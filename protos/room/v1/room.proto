@@ -34,16 +34,24 @@ message RecordingInfo {
 
 // HMSRoom represents a room in the Hotel Management System.
 message HMSRoom {
-  string name = 1;                    // Name of the room.
-  string description = 2;             // Description of the room.
-  string template_id = 3;             // Template ID of the room.
-  RecordingInfo recording_info = 4;   // Recording information.
-  string region = 5;                   // Region of the room.
-  bool large_room = 6;                // Indicates if it's a large room.
-  int32 size = 7;                     // Size of the room.
-  int32 max_duration_seconds = 8;    // Maximum duration in seconds.
-  repeated string polls = 9;          // List of polls associated with the room.
+  string id = 1;
+  string name = 2;                    // Name of the room.
+  bool enabled = 3;
+  string description = 4;             // Description of the room.
+  string customer_id = 5;
+  string app_id = 6;
+  string template = 7;
+  string template_id = 8;             // Template ID of the room.
+  RecordingInfo recording_info = 9;   // Recording information.
+  string region = 10;                   // Region of the room.
+  bool large_room = 11;                // Indicates if it's a large room.
+  int32 size = 12;                     // Size of the room.
+  int32 max_duration_seconds = 13;    // Maximum duration in seconds.
+  repeated string polls = 14;          // List of polls associated with the room.
+  string created_at = 15;
+  string updated_at = 16;
 }
+
 
 // HMSRoomQueryParam represents parameters for querying rooms.
 message HMSRoomQueryParam {
@@ -121,8 +129,6 @@ message ListRoomsResponse {
 message CreateRoomResponse {
   HMSRoom room = 1;
  }
-
-
 
 message DisableRoomResponse  {
   map<string, string> disable_room_response = 1;

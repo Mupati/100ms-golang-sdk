@@ -67,6 +67,7 @@ func (c *HMSRoomService) CreateJoinRoomToken(rb *JoinRoomParam) (string, error) 
 
 }
 
+type HMSRoom = roomv1.HMSRoom
 type GetRoomRequest = roomv1.GetRoomRequest
 
 func (c *HMSRoomService) GetRoom(ctx context.Context, data *GetRoomRequest) (*connect.Response[roomv1.GetRoomResponse], error) {
@@ -79,4 +80,36 @@ type ListRoomsRequest = roomv1.ListRoomsRequest
 func (c *HMSRoomService) ListRooms(ctx context.Context, data *ListRoomsRequest) (*connect.Response[roomv1.ListRoomsResponse], error) {
 	req := connect.NewRequest(data)
 	return c.roomService.ListRooms(ctx, req)
+}
+
+type CreateRoomRequest = roomv1.CreateRoomRequest
+
+func (c *HMSRoomService) CreateRoom(ctx context.Context, data *CreateRoomRequest) (*connect.Response[roomv1.CreateRoomResponse], error) {
+	req := connect.NewRequest(data)
+	return c.roomService.CreateRoom(ctx, req)
+
+}
+
+type UpdateRoomRequest = roomv1.UpdateRoomRequest
+
+func (c *HMSRoomService) UpdateRoom(ctx context.Context, data *UpdateRoomRequest) (*connect.Response[roomv1.UpdateRoomResponse], error) {
+	req := connect.NewRequest(data)
+	return c.roomService.UpdateRoom(ctx, req)
+
+}
+
+type EnableRoomRequest = roomv1.EnableRoomRequest
+
+func (c *HMSRoomService) EnableRoom(ctx context.Context, data *EnableRoomRequest) (*connect.Response[roomv1.EnableRoomResponse], error) {
+	req := connect.NewRequest(data)
+	return c.roomService.EnableRoom(ctx, req)
+
+}
+
+type DisableRoomRequest = roomv1.DisableRoomRequest
+
+func (c *HMSRoomService) DisableRoom(ctx context.Context, data *DisableRoomRequest) (*connect.Response[roomv1.DisableRoomResponse], error) {
+	req := connect.NewRequest(data)
+	return c.roomService.DisableRoom(ctx, req)
+
 }
