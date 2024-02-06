@@ -3,12 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"reflect"
 )
 
 // Helper method to make all api calls to 100ms
@@ -60,31 +57,4 @@ func StructToJSONPayload(input interface{}) (*bytes.Buffer, error) {
 		return nil, err
 	}
 	return bytes.NewBuffer(jsonBytes), nil
-}
-
-// encodeStructToQueryString encodes the fields of a struct into a query string
-func EncodeStructToQueryString(s interface{}) (string, error) {
-	values, err := EncodeStructToValues(s)
-	if err != nil {
-		return "", err
-	}
-	return values.Encode(), nil
-}
-
-// encodeStructToValues encodes the fields of a struct into url.Values
-func EncodeStructToValues(s interface{}) (url.Values, error) {
-	values := url.Values{}
-	val := reflect.ValueOf(s)
-	if val.Kind() == reflect.Ptr {
-		val = val.Elem()
-	}
-
-	typ := val.Type()
-	for i := 0; i < val.NumField(); i++ {
-		fieldName := typ.Field(i).Name
-		// Add the field value to the url.Values
-		values.Add(fieldName, fmt.Sprintf("%v", val.Field(i).Interface()))
-	}
-
-	return values, nil
 }

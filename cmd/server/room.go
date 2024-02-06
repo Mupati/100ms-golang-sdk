@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 
@@ -17,57 +15,6 @@ import (
 )
 
 type RoomServer struct{}
-
-// Helper method to make all api calls to 100ms
-// func performHTTPCall(url, method string, payload *bytes.Buffer) (string, error) {
-
-// 	var requestBody io.Reader
-// 	managementToken, err := auth.GenerateManagementToken(os.Getenv("APP_ACCESS_KEY"), os.Getenv("APP_SECRET"))
-
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	client := &http.Client{}
-
-// 	if payload == nil {
-// 		requestBody = nil
-// 	} else {
-// 		requestBody = payload
-// 	}
-
-// 	req, err := http.NewRequest(method, url, requestBody)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	// Add Authorization header
-// 	req.Header.Add("Authorization", "Bearer "+managementToken)
-// 	req.Header.Add("Content-Type", "application/json")
-
-// 	// Send HTTP request
-// 	res, err := client.Do(req)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	resp, err := io.ReadAll(res.Body)
-
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	defer res.Body.Close()
-// 	return string(resp), nil
-
-// }
-
-// func StructToJSONPayload(input interface{}) (*bytes.Buffer, error) {
-// 	jsonBytes, err := json.Marshal(input)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return bytes.NewBuffer(jsonBytes), nil
-// }
 
 func (s *RoomServer) GetRoom(ctx context.Context, req *connect.Request[roomv1.GetRoomRequest]) (*connect.Response[roomv1.GetRoomResponse], error) {
 	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms/"+req.Msg.RoomId, "GET", nil)
@@ -88,37 +35,13 @@ func (s *RoomServer) GetRoom(ctx context.Context, req *connect.Request[roomv1.Ge
 }
 
 func (s *RoomServer) ListRooms(ctx context.Context, req *connect.Request[roomv1.ListRoomsRequest]) (*connect.Response[roomv1.ListRoomsResponse], error) {
+	qs := url.Values{}
+	qs.Add("name", req.Msg.Filters.Name)
+	qs.Add("enabled", strconv.FormatBool(req.Msg.Filters.Enabled))
+	qs.Add("before", req.Msg.Filters.Before)
+	qs.Add("after", req.Msg.Filters.After)
 
-	var filters roomv1.ListRoomsFilters
-
-	// qs := url.Values{}
-	// if ctx.BindQuery(&param) == nil {
-	// 	qs.Add("name", param.Name)
-	// 	if param.Enabled != nil {
-	// 		qs.Add("enabled", strconv.FormatBool(*param.Enabled))
-	// 	}
-	// 	qs.Add("before", param.Before)
-	// 	qs.Add("after", param.After)
-	// }
-
-	queryString, _ := EncodeStructToQueryString(&filters)
-
-	// Print the encoded query parameters
-	fmt.Println("Encoded Query Parameters:", queryString)
-
-	// string name = 1;    // Name of the room.
-	// bool enabled = 2;   // Indicates if the room is enabled.
-	// string before = 3;  // Filter for rooms created before a certain date.
-	// string after = 4;   // Filter for
-
-	koc := url.QueryEscape("&name=" + req.Msg.Filters.Name + "&enabled=" + strconv.FormatBool(req.Msg.Filters.Enabled) + "&before=" + req.Msg.Filters.Before + "&after=" + req.Msg.Filters.After)
-
-	log.Println("log: ", koc)
-	// koc, i := range req.Msg.Filters
-
-	// helpers.MakeApiRequest(ctx, roomBaseUrl+"?"+qs.Encode(), "GET", nil)
-
-	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms"+"?"+queryString, "GET", nil)
+	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms"+"?"+qs.Encode(), "GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -185,9 +108,51 @@ func (s *RoomServer) UpdateRoom(ctx context.Context, req *connect.Request[roomv1
 }
 
 func (s *RoomServer) EnableRoom(ctx context.Context, req *connect.Request[roomv1.EnableRoomRequest]) (*connect.Response[roomv1.EnableRoomResponse], error) {
-	return nil, nil
+
+	payload, err := StructToJSONPayload(map[string]bool{"enabled": true})
+	if err != nil {
+		return nil, err
+	}
+	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms/"+req.Msg.RoomId, "POST", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	var enabledRoomResponse roomv1.HMSRoom
+	err = json.Unmarshal([]byte(resp), &enabledRoomResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	res := connect.NewResponse(
+		&roomv1.EnableRoomResponse{
+			Response: &enabledRoomResponse,
+		},
+	)
+
+	return res, nil
 }
 
 func (s *RoomServer) DisableRoom(ctx context.Context, req *connect.Request[roomv1.DisableRoomRequest]) (*connect.Response[roomv1.DisableRoomResponse], error) {
-	return nil, nil
+	payload, err := StructToJSONPayload(map[string]bool{"enabled": false})
+	if err != nil {
+		return nil, err
+	}
+	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms/"+req.Msg.RoomId, "POST", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	var disabledRoomResponse roomv1.HMSRoom
+	err = json.Unmarshal([]byte(resp), &disabledRoomResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	res := connect.NewResponse(
+		&roomv1.DisableRoomResponse{
+			Response: &disabledRoomResponse,
+		},
+	)
+	return res, nil
 }

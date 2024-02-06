@@ -128,9 +128,9 @@ message CreateRoomResponse {
  }
 
 message DisableRoomResponse  {
-  map<string, string> disable_room_response = 1;
+  HMSRoom response = 1;
 }
 
 message EnableRoomResponse  {
-  map<string, string> enable_room_response = 1;
+  HMSRoom response = 1;
 }
