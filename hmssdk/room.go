@@ -76,6 +76,7 @@ func (c *HMSRoomService) GetRoom(ctx context.Context, data *GetRoomRequest) (*co
 }
 
 type ListRoomsRequest = roomv1.ListRoomsRequest
+type ListRoomsFilters = roomv1.ListRoomsFilters
 
 func (c *HMSRoomService) ListRooms(ctx context.Context, data *ListRoomsRequest) (*connect.Response[roomv1.ListRoomsResponse], error) {
 	req := connect.NewRequest(data)

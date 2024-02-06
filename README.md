@@ -12,7 +12,7 @@ import (
 	"log"
 	"os"
 
-	hmssdk "github.com/Mupati/100ms-golang-server-sdk/sdk"
+	hmssdk "github.com/Mupati/100ms-golang-server-sdk/hmssdk"
 )
 
 func main() {

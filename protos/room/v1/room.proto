@@ -54,7 +54,7 @@ message HMSRoom {
 
 
 // HMSRoomQueryParam represents parameters for querying rooms.
-message HMSRoomQueryParam {
+message ListRoomsFilters {
   string name = 1;    // Name of the room.
   bool enabled = 2;   // Indicates if the room is enabled.
   string before = 3;  // Filter for rooms created before a certain date.
@@ -78,10 +78,7 @@ message GetRoomRequest {
 
 // ListRoomsRequest represents a request for a list of rooms with optional filters.
 message ListRoomsRequest {
-  string name = 1;    // Name filter.
-  bool enabled = 2;   // Enabled filter.
-  string before = 3;  // Filter for rooms created before a certain date.
-  string after = 4;   // Filter for rooms created after a certain date.
+  ListRoomsFilters filters = 1;
 }
 
 // CreateRoomRequest represents a request to create a room.
