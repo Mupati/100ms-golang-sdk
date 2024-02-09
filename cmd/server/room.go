@@ -38,8 +38,8 @@ func (s *RoomServer) ListRooms(ctx context.Context, req *connect.Request[roomv1.
 	qs := url.Values{}
 	qs.Add("name", req.Msg.Filters.Name)
 	qs.Add("enabled", strconv.FormatBool(req.Msg.Filters.Enabled))
-	qs.Add("before", req.Msg.Filters.Before)
-	qs.Add("after", req.Msg.Filters.After)
+	qs.Add("before", req.Msg.Filters.Before.String()) // Todo: fix timestamp issues or revert to string in .proto
+	qs.Add("after", req.Msg.Filters.After.String())
 
 	resp, err := PerformHTTPCall(os.Getenv("BASE_URL")+"rooms"+"?"+qs.Encode(), "GET", nil)
 	if err != nil {

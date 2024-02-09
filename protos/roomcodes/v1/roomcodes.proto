@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package roomcodes.v1;
+
+option go_package = "github.com/Mupati/100ms-golang-server-sdk/gen/roomcodes/v1;roomcodesv1";
+
+
+message HMSRoomCode {
+    string code = 1; // Unique room code for a role
+    string room_id	= 2; // Unique identifier for the room
+    string role = 3	 ; // Name of the role from the room's template
+    bool enabled = 4 ; // Binary state of the room code
+    google.protobuf.Timestamp created_at = 5;	// Timestamp when the room code was created
+    google.protobuf.Timestamp updated_at = 6;	// Timestamp when the room code enabled flag was updated
+}
+
+
+// RoomCodesService contains RPC methods for room codes related operations
+service RoomCodesService {
+    rpc GetRoomCodes (GetRoomCodesRequest) returns (GetRoomCodesResponse);
+    rpc CreateRoomCode (CreateRoomCodeRequest) returns (CreateRoomCodeResponse);
+    rpc CreateRoomCodeForRole (CreateRoomCodeForRoleRequest) returns (CreateRoomCodeForRoleResponse);
+    rpc UpdateRoomCode (UpdateRoomCodeRequest) returns (UpdateRoomCodeResponse);
+    rpc CreateShortCodeAuthToken (CreateShortCodeAuthTokenRequest) returns (CreateShortCodeAuthTokenResponse);
+}
+
+
+// Requests
+
+message GetRoomCodesFilters {
+    string role = 1;    
+    bool enabled = 2;   
+    int32 limit = 3;
+    string start = 4;   
+  }
+
+message GetRoomCodesRequest {
+    string room_id = 1;
+    GetRoomCodesFilters filters = 2;
+}
+
+message CreateRoomCodeRequest {
+    string room_id = 1;
+}
+
+message CreateRoomCodeForRoleRequest {
+    string room_id = 1;
+    string role = 2;
+}
+
+message UpdateRoomCodeRequest {
+    string code = 1;
+    bool enabled = 2;
+}
+
+message CreateShortCodeAuthTokenRequest {
+    string code = 1;
+}
+
+
+// Responses
+
+message GetRoomCodesResponse {
+    int32 limit = 1;
+    repeated HMSRoomCode data = 2;
+    string last = 3;
+}
+
+message CreateRoomCodeResponse {
+    repeated HMSRoomCode data = 1;
+}
+
+message CreateRoomCodeForRoleResponse {
+    HMSRoomCode room_code = 1;
+}
+
+message UpdateRoomCodeResponse {
+    HMSRoomCode room_code = 1;
+}
+
+message CreateShortCodeAuthTokenResponse {
+    string token = 1;
+    string room_id = 2;
+    string role = 3;
+    google.protobuf.Timestamp expires_at = 4;
+}

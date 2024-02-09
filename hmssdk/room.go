@@ -13,21 +13,19 @@ import (
 	"connectrpc.com/connect"
 )
 
-type HMSRoomService struct {
-	config      *HMSConfig
-	roomService roomv1connect.RoomServiceClient
+type RoomServiceClient struct {
+	room roomv1connect.RoomServiceClient
 }
 
-func NewRoomServiceClient(url, appAccessKey, appSecret string) *HMSRoomService {
-	client := roomv1connect.NewRoomServiceClient(http.DefaultClient, url)
-	return &HMSRoomService{
-		roomService: client,
-		config: &HMSConfig{
-			BaseUrl:      url,
-			AppAccessKey: appAccessKey,
-			AppSecret:    appSecret,
-		},
+func NewRoomClient(config *HMSConfig, httpClient *http.Client) *RoomServiceClient {
+	return &RoomServiceClient{
+		room: roomv1connect.NewRoomServiceClient(httpClient, config.BaseUrl),
 	}
+
+}
+
+func (s *HMSService) Room() *RoomServiceClient {
+	return NewRoomClient(s.config, s.httpClient)
 }
 
 type JoinRoomParam struct {
@@ -37,7 +35,7 @@ type JoinRoomParam struct {
 	ExpiresIn int
 }
 
-func (c *HMSRoomService) CreateJoinRoomToken(rb *JoinRoomParam) (string, error) {
+func (s *HMSService) CreateJoinRoomToken(rb *JoinRoomParam) (string, error) {
 
 	var expiresIn uint32
 
@@ -47,11 +45,11 @@ func (c *HMSRoomService) CreateJoinRoomToken(rb *JoinRoomParam) (string, error) 
 		expiresIn = uint32(rb.ExpiresIn)
 	}
 
-	mySigningKey := []byte(c.config.AppSecret)
+	mySigningKey := []byte(s.config.AppSecret)
 	now := uint32(time.Now().UTC().Unix())
 	exp := now + expiresIn
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"access_key": c.config.AppAccessKey,
+		"access_key": s.config.AppAccessKey,
 		"type":       "app",
 		"version":    2,
 		"room_id":    rb.RoomId,
@@ -64,53 +62,51 @@ func (c *HMSRoomService) CreateJoinRoomToken(rb *JoinRoomParam) (string, error) 
 	})
 
 	return token.SignedString(mySigningKey)
-
 }
 
 type HMSRoom = roomv1.HMSRoom
 type GetRoomRequest = roomv1.GetRoomRequest
 
-func (c *HMSRoomService) GetRoom(ctx context.Context, data *GetRoomRequest) (*connect.Response[roomv1.GetRoomResponse], error) {
+func (c *RoomServiceClient) GetRoom(ctx context.Context, data *GetRoomRequest) (*connect.Response[roomv1.GetRoomResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.GetRoom(ctx, req)
+	return c.room.GetRoom(ctx, req)
 }
 
 type ListRoomsRequest = roomv1.ListRoomsRequest
 type ListRoomsFilters = roomv1.ListRoomsFilters
 
-func (c *HMSRoomService) ListRooms(ctx context.Context, data *ListRoomsRequest) (*connect.Response[roomv1.ListRoomsResponse], error) {
+func (c *RoomServiceClient) ListRooms(ctx context.Context, data *ListRoomsRequest) (*connect.Response[roomv1.ListRoomsResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.ListRooms(ctx, req)
+	return c.room.ListRooms(ctx, req)
 }
 
 type CreateRoomRequest = roomv1.CreateRoomRequest
 
-func (c *HMSRoomService) CreateRoom(ctx context.Context, data *CreateRoomRequest) (*connect.Response[roomv1.CreateRoomResponse], error) {
+func (c *RoomServiceClient) CreateRoom(ctx context.Context, data *CreateRoomRequest) (*connect.Response[roomv1.CreateRoomResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.CreateRoom(ctx, req)
+	return c.room.CreateRoom(ctx, req)
 
 }
 
 type UpdateRoomRequest = roomv1.UpdateRoomRequest
 
-func (c *HMSRoomService) UpdateRoom(ctx context.Context, data *UpdateRoomRequest) (*connect.Response[roomv1.UpdateRoomResponse], error) {
+func (c *RoomServiceClient) UpdateRoom(ctx context.Context, data *UpdateRoomRequest) (*connect.Response[roomv1.UpdateRoomResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.UpdateRoom(ctx, req)
+	return c.room.UpdateRoom(ctx, req)
 
 }
 
 type EnableRoomRequest = roomv1.EnableRoomRequest
 
-func (c *HMSRoomService) EnableRoom(ctx context.Context, data *EnableRoomRequest) (*connect.Response[roomv1.EnableRoomResponse], error) {
+func (c *RoomServiceClient) EnableRoom(ctx context.Context, data *EnableRoomRequest) (*connect.Response[roomv1.EnableRoomResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.EnableRoom(ctx, req)
+	return c.room.EnableRoom(ctx, req)
 
 }
 
 type DisableRoomRequest = roomv1.DisableRoomRequest
 
-func (c *HMSRoomService) DisableRoom(ctx context.Context, data *DisableRoomRequest) (*connect.Response[roomv1.DisableRoomResponse], error) {
+func (c *RoomServiceClient) DisableRoom(ctx context.Context, data *DisableRoomRequest) (*connect.Response[roomv1.DisableRoomResponse], error) {
 	req := connect.NewRequest(data)
-	return c.roomService.DisableRoom(ctx, req)
-
+	return c.room.DisableRoom(ctx, req)
 }
