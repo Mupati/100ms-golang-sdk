@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package room.v1;
 
 option go_package = "github.com/Mupati/100ms-golang-server-sdk/gen/room/v1;roomv1";
@@ -48,8 +50,8 @@ message HMSRoom {
   int32 size = 12;                     // Size of the room.
   int32 max_duration_seconds = 13;    // Maximum duration in seconds.
   repeated string polls = 14;          // List of polls associated with the room.
-  string created_at = 15;
-  string updated_at = 16;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
 }
 
 
@@ -57,8 +59,8 @@ message HMSRoom {
 message ListRoomsFilters {
   string name = 1;    // Name of the room.
   bool enabled = 2;   // Indicates if the room is enabled.
-  string before = 3;  // Filter for rooms created before a certain date.
-  string after = 4;   // Filter for rooms created after a certain date.
+  google.protobuf.Timestamp before = 3;  // Filter for rooms created before a certain date.
+  google.protobuf.Timestamp after = 4;   // Filter for rooms created after a certain date.
 }
 
 // RoomService contains RPC methods for room-related operations.

@@ -16,15 +16,15 @@ import (
 )
 
 func main() {
-	log.Println("==========Trying out the SDK==========")
 
-	roomClient := hmssdk.NewRoomServiceClient(os.Getenv("BASE_URL"), os.Getenv("APP_ACCESS_KEY"), os.Getenv("APP_SECRET"))
-
-	log.Println("....roomClient....: ", roomClient)
+	hmsService := hmssdk.NewHMSService(&hmssdk.HMSConfig{
+		BaseUrl:      "http://localhost:9090",
+		AppSecret:    os.Getenv("APP_SECRET"),
+		AppAccessKey: os.Getenv("APP_ACCESS_KEY"),
+	}, http.DefaultClient)
 
 	// Trying out room creation
-
-	token, err := roomClient.CreateJoinRoomToken(&hmssdk.JoinRoomParam{
+	token, err := hmsService.CreateJoinRoomToken(&hmssdk.JoinRoomParam{
 		UserId:    "bra-kofi-mupati",
 		RoomId:    "655356026c4fc3aa925cb9e5",
 		Role:      "guest",
@@ -36,6 +36,21 @@ func main() {
 		return
 	}
 	log.Println("This is the token: ", token)
+
+
+	roomClient := hmsService.Room()
+
+	// Get the details of a room
+	newRoom, err := roomClient.GetRoom(context.Background(), &hmssdk.GetRoomRequest{
+		RoomId: "655356026c4fc3aa925cb9e5",
+	})
+	if err != nil {
+		log.Println("There was an error getting the room: ", err)
+		return
+	}
+	log.Println("This is a new room: ", newRoom.Msg.Room)
+
+
 }
 
 ```
